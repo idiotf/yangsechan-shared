@@ -9,6 +9,9 @@ interface Query {
 
 export class Connection {
   socket: Client
+  on
+  off
+  once
 
   constructor(nickname: string, customRoom?: string) {
     const query: Query = {
@@ -29,32 +32,11 @@ export class Connection {
     socket.on('session', session => {
       sessionStorage.setItem('yangsechan-session', session)
     })
-  }
 
-  onUpdateNickname(cb: (user: UserID, nickname: string) => void) {
-    this.socket.on('nickname', cb)
+    this.on = socket.on.bind(socket)
+    this.off = socket.off.bind(socket)
+    this.once = socket.once.bind(socket)
   }
-
-  onChat(cb: (user: UserID, msg: string) => void) {
-    this.socket.on('chat', cb)
-  }
-
-  onUpdateWord(cb: (user: UserID, word: string) => void) {
-    this.socket.on('word', cb)
-  }
-
-  onGuess(cb: (user: UserID, word: string, isCorrect: boolean) => void) {
-    this.socket.on('guess', cb)
-  }
-
-  onLeave(cb: (user: UserID) => void) {
-    this.socket.on('leave', cb)
-  }
-
-  onDisconnected(cb: (user: UserID) => void) {
-    this.socket.on('disconnectedUser', cb)
-  }
-
 
   updateNickname(nickname: string) {
     this.socket.emit('nickname', nickname)
