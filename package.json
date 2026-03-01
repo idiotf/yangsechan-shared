@@ -1,7 +1,19 @@
 {
   "name": "yangsechan-shared",
-  "module": "src/index.ts",
+  "version": "0.1.0",
   "type": "module",
+  "exports": {
+    "./server": {
+      "types": "./src/server/index.ts",
+      "import": "./src/server/index.ts",
+      "default": "./src/server/index.ts"
+    },
+    "./client": {
+      "types": "./src/client/index.ts",
+      "import": "./src/client/index.ts",
+      "default": "./src/client/index.ts"
+    }
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
