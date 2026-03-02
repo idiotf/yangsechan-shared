@@ -29,10 +29,10 @@ export function createSession(nickname: string) {
   let session, id
 
   do session = randomBase64(32)
-  while (!sessionMap.has(session))
+  while (sessionMap.has(session))
 
   do id = randomBase64(32)
-  while (!nicknameMap.has(session))
+  while (nicknameMap.has(session))
 
   sessionMap.set(session, id)
   nicknameMap.set(id, nickname)
