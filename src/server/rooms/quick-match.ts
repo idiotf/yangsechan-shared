@@ -1,6 +1,8 @@
+import randomBase64 from '../rand-buffer'
 import type { UserID } from '../../types'
 
 interface QuickMatchRoom {
+  id: string
   users: Set<UserID>
   words: Map<UserID, string>
   doneUsers: Set<UserID>
@@ -8,7 +10,7 @@ interface QuickMatchRoom {
 }
 
 const roomsMap = new Map<string, QuickMatchRoom>()
-const waitingQueue: ((room: string) => void)[] = []
+const waitingQueue: ((room: QuickMatchRoom) => void)[] = []
 
 const maxPlayers = 5
 
@@ -29,12 +31,29 @@ export async function joinQuick(id: UserID, signal: AbortSignal) {
       waitingQueue.splice(waitingQueue.indexOf(handler), 1)
     }
 
-    function handler(room: string) {
+    function handler(room: QuickMatchRoom) {
       signal.removeEventListener('abort', onAbort)
-      resolve(room)
+      room.users.add(id)
+      resolve(room.id)
     }
 
     waitingQueue.push(handler)
+    // waitingQueue 인원 수가 꽉 차면 방 생성
+    if (waitingQueue.length >= maxPlayers) {
+      let id
+      do id = randomBase64(32)
+      while (roomsMap.has(id))
+
+      const room: QuickMatchRoom = {
+        id,
+        users: new Set,
+        words: new Map,
+        doneUsers: new Set,
+        disconnectedUsers: new Map,
+      }
+
+      for (const resolve of waitingQueue) resolve(room)
+    }
 
     // 플레이어가 나가면 waitingQueue에서 제거
     signal.addEventListener('abort', onAbort, { once: true })
@@ -63,7 +82,7 @@ export function quit(userId: UserID, roomId: string) {
   room.doneUsers.clear()
 
   // 빈 자리에는 waitingQueue에 대기하던 유저가 참가
-  waitingQueue.shift()?.(roomId)
+  waitingQueue.shift()?.(room)
 }
 
 export function reJoinQuick(userId: UserID, roomId: string) {
