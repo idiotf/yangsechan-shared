@@ -53,6 +53,7 @@ export async function joinQuick(id: UserID, signal: AbortSignal) {
       }
 
       for (const resolve of waitingQueue) resolve(room)
+      waitingQueue.length = 0
     }
 
     // 플레이어가 나가면 waitingQueue에서 제거
