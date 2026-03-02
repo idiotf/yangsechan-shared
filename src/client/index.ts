@@ -31,6 +31,7 @@ export class Connection {
     const socket = this.socket
     socket.on('session', session => {
       sessionStorage.setItem('yangsechan-session', session)
+      query.session = session
     })
 
     this.on = socket.on.bind(socket)
