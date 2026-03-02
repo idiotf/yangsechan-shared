@@ -28,6 +28,8 @@ export function createServer(...args: ConstructorParameters<typeof Server>) {
         break
       }
     })
+
+    io.to([...socket.rooms]).emit('nickname', data.id, data.nickname)
   })
 
   return io

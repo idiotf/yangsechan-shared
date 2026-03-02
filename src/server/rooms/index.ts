@@ -10,7 +10,6 @@ export async function rooms(socket: Socket, next: (err?: ExtendedError) => void)
     const joined = joinTo(data.id, query.customRoom)
     if (joined) {
       await socket.join(`customRoomPlay-${query.customRoom}`)
-      sendClientData(socket)
       return next()
     } else {
       return next(Error('방에 들어갈 수가 없어요ㅠㅠ'))
@@ -21,7 +20,6 @@ export async function rooms(socket: Socket, next: (err?: ExtendedError) => void)
     const joined = reJoinQuick(data.id, query.quickJoinRoom)
     if (joined) {
       await socket.join(`quickMatchPlay-${query.quickJoinRoom}`)
-      sendClientData(socket)
       return next()
     } else {
       return next(Error('방에 들어갈 수가 없어요ㅠㅠ'))
@@ -38,13 +36,5 @@ export async function rooms(socket: Socket, next: (err?: ExtendedError) => void)
   socket.emit('quickMatch', quickMatchRoom)
   await socket.join(`quickMatchPlay-${quickMatchRoom}`)
 
-  sendClientData(socket)
   return next()
-}
-
-function sendClientData(socket: Socket) {
-  const io = socket.nsp.server
-  const data = socket.data
-
-  io.to([...socket.rooms]).emit('nickname', data.id, data.nickname)
 }
