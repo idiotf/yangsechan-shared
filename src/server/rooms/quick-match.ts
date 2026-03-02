@@ -61,13 +61,14 @@ export async function joinQuick(id: UserID, signal: AbortSignal) {
   })
 }
 
-export function handleDisconnect(userId: UserID, roomId: string) {
+export function handleDisconnect(userId: UserID, roomId: string, onQuit: () => void) {
   const room = roomsMap.get(roomId)
   if (!room) return
 
   // 3초 동안 disconnect 상태라면 quit
   room.disconnectedUsers.set(userId, setTimeout(() => {
     quit(userId, roomId)
+    onQuit()
   }, 3000))
 }
 

@@ -4,6 +4,7 @@ import type { ExtendedError } from 'socket.io'
 import type { Socket } from '../../types'
 
 export async function rooms(socket: Socket, next: (err?: ExtendedError) => void) {
+  const io = socket.nsp.server
   const query = socket.handshake.query, data = socket.data
 
   if (typeof query.customRoom == 'string') {
@@ -29,7 +30,10 @@ export async function rooms(socket: Socket, next: (err?: ExtendedError) => void)
   const controller = new AbortController
   socket.on('disconnect', reason => {
     controller.abort(reason)
-    for (const room of socket.rooms.keys()) handleDisconnect(data.id, room)
+    for (const room of socket.rooms)
+      handleDisconnect(data.id, room, () => io.to(room).emit('leave', data.id))
+
+    io.to([...socket.rooms]).emit('disconnectedUser', data.id)
   })
 
   const quickMatchRoom = await joinQuick(data.id, controller.signal)
